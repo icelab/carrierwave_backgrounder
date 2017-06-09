@@ -17,8 +17,7 @@ module CarrierWave
       private
 
       def proceed_with_versioning?
-        !model.respond_to?(:"process_#{mounted_as}_upload") && enable_processing ||
-          !!(model.send(:"process_#{mounted_as}_upload") && enable_processing)
+        !model.respond_to?(:"process_#{mounted_as}_upload") || model.send(:"process_#{mounted_as}_upload")
       end
     end # Delay
 

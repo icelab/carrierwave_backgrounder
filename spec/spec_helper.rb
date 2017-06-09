@@ -15,6 +15,7 @@ module WarningSuppression
 end
 
 RSpec.configure do |c|
+  c.mock_with :mocha
   c.include WarningSuppression
 end
 

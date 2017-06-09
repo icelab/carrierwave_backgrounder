@@ -34,7 +34,6 @@ module Sidekiq
 
     module ClassMethods
       def sidekiq_options(opts = {})
-        opts
       end
 
       def client_push(item)
@@ -47,12 +46,15 @@ module QC
 end
 
 module SuckerPunch
-  class Queue
+  module Job
+    def async
+      self
+    end
   end
 end
 
 module Rails
   def self.logger
-    @logger ||= Logger.new(STDOUT)
+    @logger ||= Object.new
   end
 end

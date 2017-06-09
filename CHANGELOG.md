@@ -1,31 +1,8 @@
 
-## 0.4.2
-
-### enhancements
-  * Allow overridden worker to set a queue name
-  * [#190] Respect Carrierwave's enable_processing flag if set to false [jherdman]
-
-### bug fixes
-  * [#216] Fix for NoMethodError: undefined method `read' for nil:NilClass [kntmrkm]
-
-## 0.4.1
-
-### enhancements
-  * [#179] Set column_processing to false instead of nil [mockdeep]
-
-## 0.4.0
-
-### enhancements
-  * [#175] SuckerPunch v1.0 support (no longer support < 1.0). [janko-m]
-
-### bug fixes
-  * [#176] Check if record exists before running backgrounder [gdott9]
-  * [#169] Correctly remove files on update if marked for deletion [sunny]
-
 ## 0.3.0
 
 ### enhancements
-  * [#123] Fail silently when record not found in worker. [DouweM]
+  * [#123] Fail silently when record not found in worker.
 
 ## 0.2.2
 
@@ -97,3 +74,4 @@
 ### bug fixes
   * Girl Friday incorrectly referenses class #92
   * Add documentation for testing with rspec #84.
+

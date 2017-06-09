@@ -22,19 +22,11 @@ module CarrierWave
 
           private
 
-          def enqueue_active_job(worker, *args)
-            worker.perform_later(*args.map(&:to_s))
-          end
-
           def enqueue_delayed_job(worker, *args)
-            worker_args = {}
             if ::Delayed::Job.new.respond_to?(:queue)
-              worker_args[:queue] = queue_options[:queue] if queue_options[:queue]
-              worker_args[:priority] = queue_options[:priority] if queue_options[:priority]
-              ::Delayed::Job.enqueue worker.new(*args), worker_args
+              ::Delayed::Job.enqueue worker.new(*args), :queue => queue_options[:queue]
             else
-              worker_args[:priority] = queue_options[:priority] if queue_options[:priority]
-              ::Delayed::Job.enqueue worker.new(*args), worker_args
+              ::Delayed::Job.enqueue worker.new(*args)
               if queue_options[:queue]
                 ::Rails.logger.warn("Queue name given but no queue column exists for Delayed::Job")
               end
@@ -47,8 +39,7 @@ module CarrierWave
           end
 
           def enqueue_sidekiq(worker, *args)
-            override_queue_name = worker.sidekiq_options['queue'] == 'default' || worker.sidekiq_options['queue'].nil?
-            args = sidekiq_queue_options(override_queue_name, 'class' => worker, 'args' => args)
+            args = sidekiq_queue_options('class' => worker, 'args' => args)
             worker.client_push(args)
           end
 
@@ -61,7 +52,11 @@ module CarrierWave
           end
 
           def enqueue_sucker_punch(worker, *args)
-            worker.new.async.perform(*args)
+            @sucker_punch_queue ||= begin
+              require_relative 'sucker_punch_queue'
+              SuckerPunchQueue.new
+            end
+            @sucker_punch_queue.async.perform(worker, *args)
           end
 
           def enqueue_qu(worker, *args)
@@ -78,10 +73,8 @@ module CarrierWave
             worker.new(*args).perform
           end
 
-          def sidekiq_queue_options(override_queue_name, args)
-            if override_queue_name && queue_options[:queue]
-              args['queue'] = queue_options[:queue]
-            end
+          def sidekiq_queue_options(args)
+            args['queue'] = queue_options[:queue] if queue_options[:queue]
             args['retry'] = queue_options[:retry] unless queue_options[:retry].nil?
             args['timeout'] = queue_options[:timeout] if queue_options[:timeout]
             args['backtrace'] = queue_options[:backtrace] if queue_options[:backtrace]
